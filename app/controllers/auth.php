@@ -2,7 +2,7 @@
 session_start();
 class auth {
     protected $user = [
-            "mai"=>"2004",
+            "nam"=>"2004",
             "admin"=>"123"
     ];
 
