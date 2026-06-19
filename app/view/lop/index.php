@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyberpunk Student List</title>
+    <title>Cyberpunk Class List</title>
     <style>
         /* Toàn cục - Phong cách Cyberpunk Dark Mode */
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: #0b0f19;
+            background-color: #0b0f19; /* Nền tối chuyển màu xanh thẫm */
             margin: 0;
             padding: 20px;
             color: #e2e8f0;
@@ -21,8 +21,8 @@
             background-color: #111827;
             padding: 30px;
             border-radius: 12px;
-            border: 1px solid #00f0ff;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            border: 1px solid #00f0ff; /* Viền xanh ngọc Cyan */
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); /* Đổ bóng phát sáng Cyan */
         }
 
         /* Tiêu đề chính */
@@ -150,6 +150,7 @@
             box-shadow: 0 0 8px #00f0ff;
         }
 
+        /* Nút xoá đổi màu hồng/đỏ neon cho nổi bật */
         .btn-delete {
             color: #ff0055;
             border: 1px solid #ff0055;
@@ -227,22 +228,22 @@
 
 <body>
     <div class="container">
-        <h1 class="main-title">Danh Sách Sinh Viên</h1>
+        <h1 class="main-title">Danh Sách Lớp Học</h1>
 
         <div class="toolbar">
-            <a href="/student/create" class="btn-add">+ Thêm Sinh Viên</a>
+            <a href="/lop/create" class="btn-add">+ Thêm Lớp</a>
 
             <div class="filter-group">
                 <select id="limitSelect" class="form-select" onchange="applyFilters(1)">
-                    <option value="5" <?= isset($data['limit']) && $data['limit'] == 5 ? 'selected' : '' ?>>5 dòng/trang</option>
-                    <option value="10" <?= !isset($data['limit']) || $data['limit'] == 10 ? 'selected' : '' ?>>10 dòng/trang</option>
-                    <option value="20" <?= isset($data['limit']) && $data['limit'] == 20 ? 'selected' : '' ?>>20 dòng/trang</option>
-                    <option value="50" <?= isset($data['limit']) && $data['limit'] == 50 ? 'selected' : '' ?>>50 dòng/trang</option>
+                    <option value="5" <?= isset($limit) && $limit == 5 ? 'selected' : '' ?>>5 dòng/trang</option>
+                    <option value="10" <?= !isset($limit) || $limit == 10 ? 'selected' : '' ?>>10 dòng/trang</option>
+                    <option value="20" <?= isset($limit) && $limit == 20 ? 'selected' : '' ?>>20 dòng/trang</option>
+                    <option value="50" <?= isset($limit) && $limit == 50 ? 'selected' : '' ?>>50 dòng/trang</option>
                 </select>
 
                 <input type="text" id="searchInput" class="form-control"
-                    value="<?= isset($data['search']) ? htmlspecialchars($data['search']) : (isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '') ?>"
-                    placeholder="Nhập MSSV, Tên hoặc Lớp..." style="width: 250px;">
+                    value="<?php echo htmlspecialchars($_GET['search'] ?? ($search ?? '')); ?>"
+                    placeholder="Tìm theo mã, tên, ghi chú..." style="width: 250px;">
 
                 <button type="button" class="btn-search" onclick="applyFilters(1)">Tìm</button>
             </div>
@@ -252,38 +253,35 @@
             <thead>
                 <tr>
                     <th class="text-center" width="5%">STT</th>
-                    <th width="15%">MSSV</th>
-                    <th width="25%">Họ và tên</th>
-                    <th width="15%">Giới tính</th>
-                    <th width="20%">Tên lớp</th>
-                    <th class="text-center" width="20%">Hành động</th>
+                    <th width="20%">Mã Lớp</th>
+                    <th width="30%">Tên Lớp</th>
+                    <th width="25%">Ghi Chú</th>
+                    <th class="text-center" width="20%">Hành Động</th>
                 </tr>
             </thead>
             <tbody>
-                <?php if (!empty($data['students'])): ?>
+                <?php if (!empty($data) && !empty($currentPage)): ?>
                     <?php
-                    // Tính STT
-                    $currentPage = isset($data['currentPage']) ? $data['currentPage'] : 1;
-                    $limit = isset($data['limit']) ? $data['limit'] : 10;
-                    $stt = ($currentPage - 1) * $limit + 1;
+                    // Lấy limit hiện tại (mặc định là 10 nếu không có)
+                    $currentLimit = isset($limit) ? $limit : 10;
+                    $stt = ($currentPage - 1) * $currentLimit + 1;
                     ?>
-                    <?php foreach ($data['students'] as $sv): ?>
+                    <?php foreach ($data as $lop): ?>
                         <tr>
-                            <td class="text-center"><?= $stt++ ?></td>
-                            <td><?= htmlspecialchars($sv['mssv']) ?></td>
-                            <td><?= htmlspecialchars($sv['hoten']) ?></td>
-                            <td><?= htmlspecialchars($sv['gioitinh']) ?></td>
-                            <td><?= htmlspecialchars($sv['ten_lop']) ?></td>
+                            <td class="text-center"><?php echo $stt++; ?></td>
+                            <td><?php echo htmlspecialchars($lop['ma_lop']); ?></td>
+                            <td><?php echo htmlspecialchars($lop['ten_lop']); ?></td>
+                            <td><?php echo htmlspecialchars($lop['ghi_chu']); ?></td>
                             <td class="text-center">
-                                <a href="/student/edit/<?= $sv['id'] ?>" class="btn-action btn-edit">Sửa</a>
-                                <a href="/student/delete/<?= $sv['id'] ?>" class="btn-action btn-delete" 
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên này không?');">Xóa</a>
+                                <a href="/lop/edit/<?php echo $lop['ma_lop']; ?>" class="btn-action btn-edit">Sửa</a>
+                                <a href="/lop/delete/<?php echo $lop['ma_lop']; ?>" class="btn-action btn-delete"
+                                    onclick="return confirm('Xóa lớp này sẽ xóa toàn bộ sinh viên thuộc lớp. Tiếp tục?')">Xóa</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" class="no-data">Không tìm thấy dữ liệu sinh viên.</td>
+                        <td colspan="5" class="no-data">Chưa có dữ liệu lớp học nào.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -291,23 +289,23 @@
 
         <div class="table-footer">
             <div class="page-info">
-                Trang <strong><?= isset($data['currentPage']) ? $data['currentPage'] : 1 ?></strong> / <strong><?= isset($data['totalPage']) && $data['totalPage'] > 0 ? $data['totalPage'] : 1 ?></strong>
+                Trang <strong><?= isset($currentPage) ? $currentPage : 1 ?></strong> / <strong><?= !empty($totalPage) && $totalPage > 0 ? $totalPage : 1 ?></strong>
             </div>
 
-            <?php if (isset($data['totalPage']) && $data['totalPage'] > 1): ?>
+            <?php if (!empty($totalPage) && $totalPage > 1): ?>
                 <div class="pagination">
-                    <button class="page-link <?= ($data['currentPage'] <= 1) ? 'disabled' : '' ?>"
-                        <?= ($data['currentPage'] <= 1) ? 'disabled' : '' ?>
-                        onclick="applyFilters(<?= $data['currentPage'] - 1 ?>)">Trước</button>
+                    <button class="page-link <?= ($currentPage <= 1) ? 'disabled' : '' ?>"
+                        <?= ($currentPage <= 1) ? 'disabled' : '' ?>
+                        onclick="applyFilters(<?= $currentPage - 1 ?>)">Trước</button>
 
-                    <?php for ($i = 1; $i <= $data['totalPage']; $i++): ?>
-                        <button class="page-link <?= ($i == $data['currentPage']) ? 'active' : '' ?>"
+                    <?php for ($i = 1; $i <= $totalPage; $i++): ?>
+                        <button class="page-link <?= ($i == $currentPage) ? 'active' : '' ?>"
                             onclick="applyFilters(<?= $i ?>)"><?= $i ?></button>
                     <?php endfor; ?>
 
-                    <button class="page-link <?= ($data['currentPage'] >= $data['totalPage']) ? 'disabled' : '' ?>"
-                        <?= ($data['currentPage'] >= $data['totalPage']) ? 'disabled' : '' ?>
-                        onclick="applyFilters(<?= $data['currentPage'] + 1 ?>)">Sau</button>
+                    <button class="page-link <?= ($currentPage >= $totalPage) ? 'disabled' : '' ?>"
+                        <?= ($currentPage >= $totalPage) ? 'disabled' : '' ?>
+                        onclick="applyFilters(<?= $currentPage + 1 ?>)">Sau</button>
                 </div>
             <?php endif; ?>
         </div>
@@ -318,8 +316,8 @@
             const limit = document.getElementById('limitSelect').value;
             let search = document.getElementById('searchInput').value.trim();
 
-            // Cấu trúc URL: /student/index/{page}/{limit}/{search}
-            let url = `/student/index/${page}/${limit}`;
+            // Cấu trúc URL mặc định: /lop/index/{page}/{limit}
+            let url = `/lop/index/${page}/${limit}`;
 
             if (search !== "") {
                 url += `/${encodeURIComponent(search)}`;
